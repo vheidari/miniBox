@@ -55,6 +55,9 @@ MINIBOX_VERSION='v0.1'
 MINIBOX_AUTHOR=@vheidari
 MINIBOX_URL=https://github.com/vheidari/miniBox
 #-------------------------------------------------------------
+SOURCEDIR=./Source
+BUILD_TOOLS=./buildTools.sh
+
 
 ##########################################################
 #			Functions
@@ -148,6 +151,13 @@ DoCompile() {
 	echo ""
 }
 
+# building all tools inside source directory
+BuildTools() {
+	cd $SOURCEDIR
+	$BUILD_TOOLS
+	cd ..	
+}
+
 
 # create initrd.img
 InitImage() {
@@ -155,7 +165,7 @@ InitImage() {
 	cd $initrdDir
 		find . | cpio -o -H newc > ../$INITRD_FILE
 		cd ..
-	# removing initrd directory after initrd.im made
+	# removing initrd directory after initrd.img was made
 	rm -rf ./$INITRD
 	cd ..
 }
@@ -215,7 +225,7 @@ PrepareBuildDir() {
 
 	mkdir $INITRD
        	cd ./$INITRD	
-		mkdir -p bin sys dev proc etc
+		mkdir -p bin sys dev proc etc sbin usr
 		cp $busyBoxFilePath ./bin
 			cd ./bin
 			for program in $(./busybox --list); do
@@ -223,6 +233,18 @@ PrepareBuildDir() {
 			done 
 			cd ..
 		cd ..
+	cd ..
+	
+	# build tools
+	BuildTools
+
+	
+	# move all compiled tools to bin 	
+	cd $SOURCEDIR
+	for toolPath in $(find . | grep mbx); do
+	        cp $toolPath ../$BUILDDIR/$INITRD/bin	
+	done
+	# go to miniBox directory	
 	cd ..
 
 	# run init script generator
