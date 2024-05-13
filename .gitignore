@@ -2,3 +2,5 @@ Download/busyBox/*
 Download/linuxKernel/*
 Build/*
 
+*.mbx
+*.o

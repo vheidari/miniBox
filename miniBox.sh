@@ -258,14 +258,61 @@ DeployOnTheMachine() {
 	$MACHINE ${PREFIX_FLAGS} ${KERNEL_FLAG} ${KERNEL_FILE} ${INITRD_FLAG} ${INITRD_FILE} ${APPEND_FLAGS} ${POSTFIX_FLAGS}
 }
 
-
 #-------------------------------------------------------------
 
-# downlod kernel to download directory
-DownloadFiles $KERNEL_URL $LINUXKERNEL_DOWNLOADDIR $KERNEL_NAME
 
-# download busybox to download directory
-DownloadFiles $BUSYBOX_URL $BUSYBOX_DOWNLOADDIR $BUSYBOX_NAME
+# check kernel and busybox file is exist
+IsFileExist() {
+	
+	# $1 stand for directory path
+	# $2 stand for 
+	getDownloadDir=$1
+	getFileName=$2
+	filePath=
+
+	if [[ ${getFileName} = $KERNEL_NAME ]]; then
+		filePath=$getDownloadDir/$getFileName
+
+		if [  -f ${filePath} ];then
+			echo "exist"
+		else
+			echo "notexist"	
+		fi
+
+
+	elif [[ ${getFileName} = $BUSYBOX_NAME ]]; then
+		filePath=$getDownloadDir/$getFileName
+
+		if [ -f ${filePath} ]; then
+			echo "exist"
+		else
+			echo "notexist"
+		fi
+	fi
+
+}
+
+
+##########################################################
+#                       Start Tasks 
+##########################################################
+
+IsKernelFileExist=$(IsFileExist $LINUXKERNEL_DOWNLOADDIR $KERNEL_NAME)
+IsBusyBoxFileExist=$(IsFileExist $BUSYBOX_DOWNLOADDIR $BUSYBOX_NAME)
+
+# check linux kernel file exist in download directory
+if [ ${IsKernelFileExist} = "notexist" ]; then
+	# downlod kernel to download directory
+	DownloadFiles $KERNEL_URL $LINUXKERNEL_DOWNLOADDIR $KERNEL_NAME
+fi
+
+# check busybox file exist in download dirctory
+if [ ${IsKernelFileExist} = "notexist" ]; then
+	# download busybox to download directory
+	DownloadFiles $BUSYBOX_URL $BUSYBOX_DOWNLOADDIR $BUSYBOX_NAME
+fi
+
+
 #-------------------------------------------------------------
 
 # decompress kernel inside download directory 
